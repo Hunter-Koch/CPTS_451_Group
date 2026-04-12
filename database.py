@@ -104,4 +104,21 @@ def init_database():
                 """)
     con.commit()
     cur.close()
+
+def new_insert_query(table, values):
+    con = get_connection()
+    cur = con.cursor()
+    placeholders = ",".join(["?"] * len(values))
+    statement = f"INSERT INTO {table} VALUES ({placeholders})"
+    try:
+        
+        cur.execute(statement, values)
+        con.commit()
+        return None #?
+    except sqlite3.IntegrityError as e:
+        return str(e)
+    finally:
+        cur.close()
+        con.close()
+   
     
