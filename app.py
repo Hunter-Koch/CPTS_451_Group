@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from database import get_connection, init_database, new_insert_query
+from database import get_connection, init_database, new_insert_query, new_update_query
 if "show_sidebar" not in st.session_state:
     st.session_state.show_sidebar = False
 if "sidebar_action" not in st.session_state:
@@ -187,9 +187,36 @@ if st.session_state.show_sidebar:
 
     if update_button:
         st.session_state.sidebar_action = "update"
+
     
     if st.session_state.sidebar_action == "update":
-         table = st.sidebar.selectbox("What table would you like to update?", ("users", "vehicles", "available_slots", "reservations"))
+        table = st.sidebar.selectbox("What table would you like to update?", ("users", "vehicles", "available_slots", "reservations"))
+
+        if table == "users":
+            with st.sidebar.container():
+                columns = st.multiselect("select which columns to update", ["user_id", "username"])
+            update_users_form = st.sidebar.form(key = "update_users_form")
+
+            
+            values = []
+
+            if "user_id" in columns:
+                user_id = update_users_form.text_input("user_id")
+                values.append(user_id)
+            if "username" in columns:
+                username = update_users_form.text_input("username")
+                values.append(username)
+            where_col = update_users_form.text_input("Where")
+            where_val = update_users_form.text_input("is")
+            submit = update_users_form.form_submit_button("submit")
+            
+            if submit:
+                error = new_update_query("users", columns, values, where_col, where_val)
+                if error: 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+
 
 
 if dummy_values:

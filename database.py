@@ -121,4 +121,22 @@ def new_insert_query(table, values):
         cur.close()
         con.close()
    
+def new_update_query(table, columns, values, where_col, where_val): 
+    con = get_connection()
+    cur = con.cursor()
+    try:
+        placeholders = ",".join(f"{column} = ?" for column in columns)
+        statement = f"""UPDATE {table}
+            SET {placeholders} 
+            WHERE {where_col} = ?"""
+        cur.execute(statement, values + [where_val])
+        con.commit()
+        return None
+    except sqlite3.IntegrityError as e:
+        return str(e)
+    finally:
+        cur.close()
+        con.close()
+
+
     
