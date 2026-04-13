@@ -102,6 +102,62 @@ def init_database():
                 );
             END;
                 """)
+    
+    
+    cur.execute("""
+        CREATE TRIGGER IF NOT EXISTS no_overlap_reservation_update
+                BEFORE UPDATE ON reservations
+                FOR EACH ROW
+                BEGIN
+
+                    -- Check for slot double-booking
+                    SELECT RAISE(ABORT, 'Reservation times cannot overlap.')
+                    WHERE EXISTS (
+                        SELECT 1 FROM reservations
+                        WHERE slot_id = NEW.slot_id
+                        AND transaction_id != NEW.transaction_id
+                        AND NEW.time_start < time_end
+                        AND NEW.time_end > time_start
+                    );
+
+                    --Check for user overlapping booking
+                    SELECT RAISE(ABORT, 'Users cannot have two reservations at the same time.')
+                    WHERE EXISTS (
+                        SELECT 1 FROM reservations
+                        WHERE user_id = NEW.user_id
+                        AND transaction_id != NEW.transaction_id
+                        AND NEW.time_start < time_end
+                        AND NEW.time_end > time_start
+                    );
+                END;
+            """)
+    cur.execute("""
+        CREATE TRIGGER IF NOT EXISTS ensure_vehicle_size_match_update
+            BEFORE UPDATE ON reservations
+            FOR EACH ROW
+            BEGIN
+                --motorcyle only slots
+                SELECT RAISE(ABORT, 'Only motorcycles can park in motorcycle slots.')
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM available_slots a
+                    JOIN vehicles v ON v.plate = NEW.vehicle_plate
+                    WHERE a.slot_id = NEW.slot_id
+                    AND a.slot_type = 'MOTORCYCLE'
+                    AND v.v_size != 'MOTORCYCLE'
+                );
+                -- compact slots
+                SELECT RAISE(ABORT, 'Vehicle too big')
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM available_slots a
+                    JOIN vehicles v ON v.plate = NEW.vehicle_plate
+                    WHERE a.slot_id = NEW.slot_id
+                    AND a.slot_type = 'COMPACT'
+                    AND v.v_size = 'LARGE'
+                );
+            END;
+                """)
     con.commit()
     cur.close()
 
@@ -121,4 +177,22 @@ def new_insert_query(table, values):
         cur.close()
         con.close()
    
+def new_update_query(table, columns, values, where_exp): 
+    con = get_connection()
+    cur = con.cursor()
+    try:
+        placeholders = ",".join(f"{column} = ?" for column in columns)
+        statement = f"""UPDATE {table}
+            SET {placeholders} 
+            WHERE {where_exp}"""
+        cur.execute(statement, values)
+        con.commit()
+        return None
+    except sqlite3.IntegrityError as e:
+        return str(e)
+    finally:
+        cur.close()
+        con.close()
+
+
     
