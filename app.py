@@ -206,18 +206,122 @@ if st.session_state.show_sidebar:
             if "username" in columns:
                 username = update_users_form.text_input("username")
                 values.append(username)
-            where_col = update_users_form.text_input("Where")
-            where_val = update_users_form.text_input("is")
+            where_exp = update_users_form.text_input("Where")
+            
             submit = update_users_form.form_submit_button("submit")
             
             if submit:
-                error = new_update_query("users", columns, values, where_col, where_val)
+                error = new_update_query("users", columns, values, where_exp)
+                if error: 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+        
+        if table == "vehicles":
+            with st.sidebar.container():
+                columns = st.multiselect("select which columns to update", ["user_id", "make", "model", "plate", "v_size"])
+            update_vehicle_form = st.sidebar.form(key = "update_vehicle_form")
+
+            values = []
+
+            if "user_id" in columns:
+                user_id = update_vehicle_form.text_input("user_id")
+                values.append(user_id)
+            if "make" in columns:
+                username = update_vehicle_form.text_input("username")
+                values.append(username)
+            if "model" in columns:
+                model =  update_vehicle_form.text_input("model")
+                values.append(model)
+            if "plate" in columns:
+                plate =  update_vehicle_form.text_input("plate")
+                values.append(plate)
+            if "v_size" in columns:
+                v_size =  update_vehicle_form.text_input("v_size")
+                values.append(v_size)
+            
+                
+            where_exp = update_vehicle_form.text_input("Where")
+            
+            submit = update_vehicle_form.form_submit_button("submit")
+            
+            if submit:
+                error = new_update_query("vehicles", columns, values, where_exp)
+                if error: 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+        
+        if table == "available_slots":
+            with st.sidebar.container():
+                columns = st.multiselect("select which columns to update", ["slot_id", "lot_id", "slot_number", "slot_type"])
+            update_slot_form = st.sidebar.form(key = "update_slot_form")
+
+            values = []
+
+            if "slot_id" in columns:
+                slot_id = update_slot_form.text_input("slot_id")
+                values.append(slot_id)
+            if "lot_id" in columns:
+                lot_id = update_slot_form.text_input("lot_id")
+                values.append(lot_id)
+            if "slot_number" in columns:
+                slot_number =  update_slot_form.number_input("slot_number", min_value = 1, step = 1)
+                values.append(slot_number)
+            if "slot_type" in columns:
+                slot_type =  update_slot_form.text_input("slot_type")
+                values.append(slot_type)
+            
+                
+            where_exp = update_slot_form.text_input("Where")
+            
+            submit = update_slot_form.form_submit_button("submit")
+            
+            if submit:
+                error = new_update_query("available_slots", columns, values, where_exp)
                 if error: 
                     st.sidebar.error(error)
                 else:
                     st.success("Success")
 
+        if table == "reservations":
+            with st.sidebar.container():
+                columns = st.multiselect("select which columns to update", ["transaction_id", "user_id", "slot_id", "vehicle_plate", "time_start", "time_end"])
+            update_reservations_form = st.sidebar.form(key = "update_reservations_form")
 
+            values = []
+
+            if "transaction_id" in columns:
+                transaction_id = update_reservations_form.text_input("transaction_id")
+                values.append(transaction_id)
+            if "user_id" in columns:
+                user_id = update_reservations_form.text_input("user_id")
+                values.append(user_id)
+            if "slot_id" in columns:
+                slot_id =  update_reservations_form.text_input("slot_id")
+                values.append(slot_id)
+            if "vehicle_plate" in columns:
+                vehicle_plate =  update_reservations_form.text_input("vehicle_plate")
+                values.append(vehicle_plate)
+            if "time_start" in columns:
+                time_start =  update_reservations_form.datetime_input("time_start")
+                values.append(time_start)
+            if "time_end" in columns:
+                time_end =  update_reservations_form.datetime_input("time_end")
+                values.append(time_end)
+            
+            
+                
+            where_exp = update_reservations_form.text_input("Where")
+            
+            submit = update_reservations_form.form_submit_button("submit")
+            
+            if submit:
+                error = new_update_query("reservations", columns, values, where_exp)
+                if error: 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
 
 if dummy_values:
     set_dummy_values()
