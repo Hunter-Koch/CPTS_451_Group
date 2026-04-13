@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from database import get_connection, init_database, new_insert_query, new_update_query
+from database import get_connection, init_database, new_insert_query, new_update_query, new_delete_querey
 if "show_sidebar" not in st.session_state:
     st.session_state.show_sidebar = False
 if "sidebar_action" not in st.session_state:
@@ -79,13 +79,17 @@ if new_query:
     else:
         st.session_state.show_sidebar = True
 
+# to anyone reading this, yes there are a lot of unnecessary if statments and hard coded 
+# operators. Ill refactor this later.
 if st.session_state.show_sidebar:
 
     st.sidebar.header("New Query")
     
+    lookup_button = st.sidebar.button("Lookup")
     insert_button = st.sidebar.button("Insert")
     update_button = st.sidebar.button("Update")
     delete_button = st.sidebar.button("Delete")
+
     if insert_button:
         st.session_state.sidebar_action = "insert"
     
@@ -322,6 +326,65 @@ if st.session_state.show_sidebar:
                     st.sidebar.error(error)
                 else:
                     st.success("Success")
+
+    if delete_button:
+        st.session_state.sidebar_action = "delete"
+
+    if st.session_state.sidebar_action == "delete":
+        table = st.sidebar.selectbox("What table would you like to delete from", ("users", "vehicles", "available_slots", "reservations"))
+
+        delete_user_form = st.sidebar.form(key = "delete_user_form")
+        if table == "users":
+            where_exp = delete_user_form.text_input("Where")
+            submit = delete_user_form.form_submit_button("submit")
+
+            if submit:
+                error = new_delete_querey("users", where_exp)
+                if error: 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+
+        if table == "vehicles":
+            delete_vehicle_form = st.sidebar.form(key = "delete_vehicles_form")
+            where_exp = delete_vehicle_form.text_input("Where")
+            submit = delete_vehicle_form.form_submit_button("submit")
+
+
+            if submit:
+                error = new_delete_querey("vehicles", where_exp)
+                if error: 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+        
+        if table == "available_slots":
+            delete_slots_form = st.sidebar.form(key = "delete_slots_form")
+            where_exp = delete_slots_form.text_input("Where")
+            submit = delete_slots_form.form_submit_button("submit")
+            
+
+            if submit:
+                error = new_delete_querey("available_slots", where_exp)
+                if error: 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+        
+        if table == "reservations":
+            delete_reservations_form = st.sidebar.form(key = "delete_reservations_form")
+            where_exp = delete_reservations_form.text_input("Where")
+            submit = delete_reservations_form.form_submit_button("submit")
+            
+
+            if submit:
+                error = new_delete_querey("reservations", where_exp)
+                if error: 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+
+
 
 if dummy_values:
     set_dummy_values()
