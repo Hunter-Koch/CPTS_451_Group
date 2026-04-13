@@ -208,5 +208,22 @@ def new_delete_querey(table, where_exp):
         cur.close()
         con.close()
 
+def new_select_query(table, columns, where_exp):
+    con = get_connection()
+    cur = con.cursor()
+    try: 
+        placeholders = ", ".join(columns)
+        if where_exp == "":
+            statement = f"SELECT {placeholders} FROM {table}"
+        else:
+            statement = f"SELECT {placeholders} FROM {table} WHERE {where_exp}"
+        cur.execute(statement)
+        return cur.fetchall()
+    except sqlite3.IntegrityError as e:
+        return str(e)
+    finally:
+        cur.close()
+        con.close()
+
 
     

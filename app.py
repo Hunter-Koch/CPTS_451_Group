@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from database import get_connection, init_database, new_insert_query, new_update_query, new_delete_querey
+from database import get_connection, init_database, new_insert_query, new_update_query, new_delete_querey, new_select_query
 if "show_sidebar" not in st.session_state:
     st.session_state.show_sidebar = False
 if "sidebar_action" not in st.session_state:
@@ -384,7 +384,86 @@ if st.session_state.show_sidebar:
                 else:
                     st.success("Success")
 
+    if lookup_button:
+        st.session_state.sidebar_action = "lookup"
 
+    if st.session_state.sidebar_action == "lookup":
+        table = st.sidebar.selectbox("What table would you like to look from", ("users", "vehicles", "available_slots", "reservations"))
+
+        if table == "users":
+            with st.sidebar.container():
+                columns = st.multiselect("select which columns to select", ["user_id", "username"]) 
+            
+            select_users_form = st.sidebar.form(key = "select_users_form")
+            where_exp = select_users_form.text_input("Where")
+            submit = select_users_form.form_submit_button("submit")
+            
+
+            if submit:
+                error = new_select_query("users", columns, where_exp)
+                if isinstance(error, str): 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+                    df = pd.DataFrame(error, columns = columns)
+                    st.dataframe(df)
+
+
+        if table == "vehicles":
+            with st.sidebar.container():
+                columns = st.multiselect("select which columns to select", ["user_id", "make", "model", "plate", "v_size"]) 
+            
+            select_vehicles_form = st.sidebar.form(key = "select_vehicles_form")
+            where_exp = select_vehicles_form.text_input("Where")
+            submit = select_vehicles_form.form_submit_button("submit")
+            
+
+            if submit:
+                error = new_select_query("vehicles", columns, where_exp)
+                if isinstance(error, str): 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+                    df = pd.DataFrame(error, columns = columns)
+                    st.dataframe(df)
+
+        if table == "available_slots":
+            with st.sidebar.container():
+                columns = st.multiselect("select which columns to select", ["slot_id", "lot_id", "slot_number", "slot_type"]) 
+            
+            select_slots_form = st.sidebar.form(key = "select_slots_form")
+            where_exp = select_slots_form.text_input("Where")
+            submit = select_slots_form.form_submit_button("submit")
+            
+
+            if submit:
+                error = new_select_query("available_slots", columns, where_exp)
+                if isinstance(error, str): 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+                    df = pd.DataFrame(error, columns = columns)
+                    st.dataframe(df)
+
+        if table == "reservations":
+            with st.sidebar.container():
+                columns = st.multiselect("select which columns to select", ["transaction_id", "user_id", "slot_id", "vehicle_plate", "time_start", "time_end"]) 
+            
+            select_reservations_form = st.sidebar.form(key = "select_slots_form")
+            where_exp = select_reservations_form.text_input("Where")
+            submit = select_reservations_form.form_submit_button("submit")
+            
+
+            if submit:
+                error = new_select_query("reservations", columns, where_exp)
+                if isinstance(error, str): 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+                    df = pd.DataFrame(error, columns = columns)
+                    st.dataframe(df)
+
+    
 
 if dummy_values:
     set_dummy_values()
