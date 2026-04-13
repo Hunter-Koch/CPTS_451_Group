@@ -1,6 +1,6 @@
 # CPTS_451_Group
 ## Class group project repository
-Names: Hunter Koch
+Names: Hunter Koch, Zimo Liu, Ethan Burzynski
 
 ## instructions to run
 #### set up virtual enviornment.
