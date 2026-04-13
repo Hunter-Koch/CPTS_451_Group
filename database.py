@@ -194,5 +194,19 @@ def new_update_query(table, columns, values, where_exp):
         cur.close()
         con.close()
 
+def new_delete_querey(table, where_exp):
+    con = get_connection()
+    cur = con.cursor()
+    try: 
+        statement = f"DELETE FROM {table} WHERE {where_exp}"
+        cur.execute(statement)
+        con.commit()
+        return None
+    except sqlite3.IntegrityError as e:
+        return str(e)
+    finally:
+        cur.close()
+        con.close()
+
 
     
