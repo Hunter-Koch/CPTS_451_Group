@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from database import get_connection, init_database, new_insert_query, new_update_query, new_delete_querey, new_select_query
+from database import get_connection, init_database, new_insert_query, new_update_query, new_delete_querey, new_select_query, new_full_query
+
 if "show_sidebar" not in st.session_state:
     st.session_state.show_sidebar = False
 if "sidebar_action" not in st.session_state:
@@ -388,7 +389,7 @@ if st.session_state.show_sidebar:
         st.session_state.sidebar_action = "lookup"
 
     if st.session_state.sidebar_action == "lookup":
-        table = st.sidebar.selectbox("What table would you like to look from", ("users", "vehicles", "available_slots", "reservations"))
+        table = st.sidebar.selectbox("What table would you like to look from", ("users", "vehicles", "available_slots", "reservations", "[--ADVANCED--]"))
 
         if table == "users":
             with st.sidebar.container():
@@ -462,6 +463,22 @@ if st.session_state.show_sidebar:
                     st.success("Success")
                     df = pd.DataFrame(error, columns = columns)
                     st.dataframe(df)
+        
+        if table == "[--ADVANCED--]":
+            full_query = st.sidebar.text_input("Enter full query")
+            select_reservations_form = st.sidebar.form(key = "full_query_form")
+            submit = select_reservations_form.form_submit_button("submit")
+
+            if submit:
+                error = new_full_query(full_query)
+                if isinstance(error, str): 
+                    st.sidebar.error(error)
+                else:
+                    st.success("Success")
+                    df = pd.DataFrame(error)
+                    st.dataframe(df)
+
+
 
     
 

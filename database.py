@@ -49,6 +49,8 @@ def init_database():
                 )
                 );"""
                 )
+    
+    
     cur.execute("""
         CREATE TRIGGER IF NOT EXISTS no_overlap_reservation
                 BEFORE INSERT ON reservations
@@ -225,5 +227,17 @@ def new_select_query(table, columns, where_exp):
         cur.close()
         con.close()
 
+def new_full_query(statement):
+    con = get_connection()
+    cur = con.cursor()
+    try:
+        cur.execute(statement)
+        return cur.fetchall()
+    except sqlite3.IntegrityError as e:
+        return str(e)
+    finally:
+        cur.close()
+        con.close()
+    
 
     
